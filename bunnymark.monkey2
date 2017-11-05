@@ -4,7 +4,7 @@ Namespace bunnies
 
 #Import "<std>"
 #Import "<mojo>"
-#Import "atlas"
+#Import "source/atlas"
 
 Using std..
 Using mojo..
@@ -48,27 +48,36 @@ Class Bunnymark Extends Window
 		canvas.DrawRect( 0, 0, App.ActiveWindow.Width , 25 )
 		
 		canvas.Color = Color.Black
-		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
-		canvas.DrawText(" FPS: " + App.FPS, 300, 0 )
+		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",10,5)
+		canvas.DrawText(" FPS: " + App.FPS, 250, 5 )
+		canvas.DrawText(" Left mouse = +10, middle = +100, right = +1000  (hold alt key to remove) ", 450, 5 )
 	End	
 	
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
+
 		If event.Type = EventType.MouseDown
-			Local _len := 0 
+			Local _len := 0  
 			If event.Button = MouseButton.Left
 				_len = 10
 			Elseif event.Button = MouseButton.Right
 				_len = 1000
 			Elseif event.Button = MouseButton.Middle
-				_len = -100	
+				_len = 100	
 			End  
 			
-			For Local n := 1 To _len
-				bunnies.Push( New Bunny( Mouse.X, Mouse.Y ) )
-			Next
+			If Keyboard.KeyDown( Key.LeftAlt )
+				For Local n := 1 To _len
+					If bunnies.Length Then bunnies.Pop()
+				Next
+			Else
+				For Local n := 1 To _len
+					bunnies.Push( New Bunny( Mouse.X, Mouse.Y ) )
+				Next
+			End
 			
-		End 	
+		End
+		
 	End	
 
 End
