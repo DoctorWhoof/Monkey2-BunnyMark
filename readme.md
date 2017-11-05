@@ -6,7 +6,7 @@ A simple bunnymark to test the rendering capabilities of Monkey2.
 
 - OOP Design
 - Bunnymark is a controller which handles update, drawing, and mouse input
-- **CONTROLS** Left click: 10 bunnies, Right click: 100 bunnies
+- **CONTROLS** Left click: 10 bunnies, Right click: 1000 bunnies, Alt key causes clicks to subtract instead of adding.
 - Release-mode binaries for **WINDOWS**
 - The Bunnyclass simply holds position, velocities, textures, and handles inner logic.
 
