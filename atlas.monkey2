@@ -1,3 +1,5 @@
+'Atlas class by Leo Santos. Feel free to use and/or modify, with credit.
+
 Namespace mojo.graphics
 
 Class Atlas
