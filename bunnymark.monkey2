@@ -9,7 +9,8 @@ Namespace bunnies
 Using std..
 Using mojo..
 
-Const bunnyAtlas := New Atlas( "asset::wabbit_alpha.png", 32, 64 ).Images	'Property .Images returns an image array
+Const bunnyAtlas := New Atlas( "asset::wabbit_alpha.png", 32, 64 )
+Const initialCount := 10000
 
 Function Main()
 	New AppInstance
@@ -29,8 +30,8 @@ Class Bunnymark Extends Window
 	
 	Method New()
 		Super.New("Bunnymark", 1024, 768, WindowFlags.Resizable )
-		For Local i:=0 Until bunnies.Length
-			bunnies.Push( New Bunny( 0, 0 ) )
+		For Local n := 0 Until initialCount
+			bunnies.Push( New Bunny( 512, 384 ) )
 		Next
 	End
 	
@@ -41,8 +42,9 @@ Class Bunnymark Extends Window
 		
 		For Local bunny:=Eachin bunnies
 			bunny.Update()
-			bunny.Draw(canvas)
 		Next
+		
+		bunnyAtlas.DrawBatch( canvas )
 		
 		canvas.Color = Color.White 
 		canvas.DrawRect( 0, 0, App.ActiveWindow.Width , 25 )
@@ -88,7 +90,7 @@ End
 
 Class Bunny
 	
-	Global gravity := 0.5
+	Global gravity := 0.1
 	Global border := 32.0
 	
 	Field x: Float 
@@ -97,7 +99,7 @@ Class Bunny
 	Field yspeed: Float
 	Field maxBounce:= 5.0
 
-	Field image: Image
+	Field atlas:Atlas
 	Field frame:Int
 	
 	
@@ -107,8 +109,8 @@ Class Bunny
 		
 		xspeed = Rnd( -10, 10 )
 		frame = Floor( Rnd(0,4) )
-		image = bunnyAtlas[frame]
-		image.Handle = New Vec2f( 0.5, 0.5 )
+
+		atlas = bunnyAtlas
 	End
 	
 	
@@ -126,18 +128,15 @@ Class Bunny
 		
 		If y > App.ActiveWindow.Height - border
 			y = App.ActiveWindow.Height - border
-			yspeed = -random.Rnd( 35 )
+			yspeed = -random.Rnd( maxBounce * 3 )
 		End
 		
 		If( x < border ) Or ( x > App.ActiveWindow.Width - border )
 			xspeed *= -1
 			x = Clamp( x, border, Float(App.ActiveWindow.Width - border ) )
 		End
-	End
-	
-	
-	Method Draw(canvas:Canvas)
-		canvas.DrawImage( image, x, y )
+		
+		atlas.QueueSprite( x, y, frame )
 	End
 	
 End
