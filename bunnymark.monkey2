@@ -1,43 +1,42 @@
 Namespace bunnies
 
-' Load up the assets
-
 #Import "assets/wabbit_alpha.png"
-#Import "assets/wabbit_alpha2.png"
-#Import "assets/wabbit_alpha3.png"
-#Import "assets/wabbit_alpha4.png"
 
-' Load up imports
 #Import "<std>"
 #Import "<mojo>"
+#Import "atlas"
+
 Using std..
 Using mojo..
 
+Const bunnyAtlas := New Atlas( "asset::wabbit_alpha.png", 32, 64 ).Images	'Property .Images returns an image array
 
-Const VWIDTH:=1024
-Const VHEIGHT:=768
+Function Main()
+	New AppInstance
+	New Bunnymark
+	App.Run()
+End Function
+
+
+'******************************************************************************************************
+
 
 Class Bunnymark Extends Window 
-	Field frames: Int = 1
-	Field elapsed: Int = 1
-	Field bunnies:Bunny[] = New Bunny[100]
-	Field images:Image[] = New Image[]( 
-			Image.Load("asset::wabbit_alpha.png"),
-			Image.Load("asset::wabbit_alpha2.png"),
-			Image.Load("asset::wabbit_alpha3.png"),
-			Image.Load("asset::wabbit_alpha4.png") )
-	Field lastMilli := Millisecs()
+	
+	Field frames := 1
+	Field elapsed := 1
+	Field bunnies := New Stack<Bunny>
 	
 	Method New()
-		Super.New("Bunnymark", VWIDTH, VHEIGHT, WindowFlags.Resizable )
+		Super.New("Bunnymark", 1024, 768, WindowFlags.Resizable )
 		For Local i:=0 Until bunnies.Length
-			bunnies[i] = New Bunny( 0, 0, images[ Floor( random.Rnd( 3 )) ] )
+			bunnies.Push( New Bunny( 0, 0 ) )
 		Next
-		
 	End
 	
+	
 	Method OnRender( canvas:Canvas ) Override
-		App.RequestRender() ' Activate this method 
+		App.RequestRender()
 		If Keyboard.KeyReleased(Key.Escape) Then App.Terminate()
 		
 		For Local bunny:=Eachin bunnies
@@ -45,24 +44,14 @@ Class Bunnymark Extends Window
 			bunny.Draw(canvas)
 		Next
 		
-		'elapsed += Millisecs() - lastMilli
-		'Local avg :=  1000/( ( elapsed /Float(frames)) ) '- not recquired anymore thanks to App.FPS
-		
 		canvas.Color = Color.White 
-		canvas.DrawRect( 0, 0, VWIDTH, 25 )
+		canvas.DrawRect( 0, 0, App.ActiveWindow.Width , 25 )
 		
 		canvas.Color = Color.Black
 		canvas.DrawText("The Bunnymark ( " + bunnies.Length + " )",0,0)
-		canvas.DrawText(" FPS: " + App.FPS, 300, 0 ) ' App.FPS suggested by abakobo
-		
-#rem	frames += 1		
-		If frames > 100 	' makeshift FPS counter not necessary
-			frames = 1
-			elapsed = 1
-		Endif 
-		lastMilli = Millisecs()
-#end 
-	End Method	
+		canvas.DrawText(" FPS: " + App.FPS, 300, 0 )
+	End	
+	
 	
 	Method OnMouseEvent( event:MouseEvent ) Override
 		If event.Type = EventType.MouseDown
@@ -74,53 +63,72 @@ Class Bunnymark Extends Window
 			Elseif event.Button = MouseButton.Middle
 				_len = -100	
 			End  
-			' Extra functionality ( RightButton / Middle ) added by @therevills
-			bunnies = bunnies.Resize( bunnies.Length + _len )
-			For Local i:=1 Until _len + 1
-			 bunnies[bunnies.Length-i] = New Bunny( Mouse.X, Mouse.Y, images[ Floor( random.Rnd( 4 )) ] )
-			End
+			
+			For Local n := 1 To _len
+				bunnies.Push( New Bunny( Mouse.X, Mouse.Y ) )
+			Next
+			
 		End 	
-	End Method	
+	End	
 
 End
 
-Class Bunny 
+
+'******************************************************************************************************
+
+
+Class Bunny
+	
+	Global gravity := 0.5
+	Global border := 32.0
+	
 	Field x: Float 
 	Field y: Float 
 	Field xspeed: Float
-	Field yspeed: Float 
-	Field texture: Image
-	Global  gravity := 0.5
+	Field yspeed: Float
+	Field maxBounce:= 5.0
+
+	Field image: Image
+	Field frame:Int
 	
-	Method New( x: Float, y: Float, texture:Image )
+	
+	Method New( x: Float, y: Float )
 		Self.x = x
 		Self.y = y
-		Self.texture = texture
-		xspeed = random.Rnd( 10 )
+		
+		xspeed = Rnd( -10, 10 )
+		frame = Floor( Rnd(0,4) )
+		image = bunnyAtlas[frame]
+		image.Handle = New Vec2f( 0.5, 0.5 )
 	End
 	
+	
 	Method Update:Void( )
-		yspeed += gravity 
+		yspeed += gravity
+
 		y += yspeed
 		x += xspeed
 		
-		If y >= VHEIGHT
-			y = VHEIGHT 
+		If y < border*2
+			y = border*2
+			yspeed *= -1
+			yspeed = Clamp( yspeed, 0.0, Float( maxBounce ) )
+		End
+		
+		If y > App.ActiveWindow.Height - border
+			y = App.ActiveWindow.Height - border
 			yspeed = -random.Rnd( 35 )
-		Endif 
-		If x < 0 Or x > VWIDTH 
+		End
+		
+		If( x < border ) Or ( x > App.ActiveWindow.Width - border )
 			xspeed *= -1
-			x = Clamp(x, 0.0, Float(VWIDTH)	 )
-		Endif 
+			x = Clamp( x, border, Float(App.ActiveWindow.Width - border ) )
+		End
 	End
 	
+	
 	Method Draw(canvas:Canvas)
-		canvas.DrawImage( texture, x, y )
-	End	
+		canvas.DrawImage( image, x, y )
+	End
+	
 End
-
-Function Main()
-	New AppInstance
-	New Bunnymark
-	App.Run()
-End Function
