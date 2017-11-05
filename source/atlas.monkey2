@@ -131,7 +131,7 @@ Class Atlas
 	Method DrawBatch( canvas:Canvas )
 		For Local n := 0 To Int(Floor( queueSize / 15000 ))
 			If vertStack[n].Length >= 8
-				canvas.DrawText( "group " + n, (100*n) + 10, App.ActiveWindow.Height - 16 )
+'				canvas.DrawText( "group " + n, (100*n) + 10, App.ActiveWindow.Height - 18 )	'for group debugging
 				canvas.DrawPrimitives( 4, vertStack[n].Length/8, vertStack[n].Data.Data, 8, uvStack[n].Data.Data, 8, Null, 4, img, Null )
 			End
 			vertStack[n].Clear()

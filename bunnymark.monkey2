@@ -62,13 +62,13 @@ Class Bunnymark Extends Window
 			Local _len := 0  
 			If event.Button = MouseButton.Left
 				_len = 10
+			Elseif event.Button = MouseButton.Middle
+				_len = 100
 			Elseif event.Button = MouseButton.Right
 				_len = 1000
-			Elseif event.Button = MouseButton.Middle
-				_len = 100	
 			End  
 			
-			If Keyboard.KeyDown( Key.LeftAlt )
+			If Keyboard.KeyDown( Key.LeftAlt ) Or Keyboard.KeyDown( Key.RightAlt )
 				For Local n := 1 To _len
 					If bunnies.Length Then bunnies.Pop()
 				Next
@@ -77,7 +77,6 @@ Class Bunnymark Extends Window
 					bunnies.Push( New Bunny( Mouse.X, Mouse.Y ) )
 				Next
 			End
-			
 		End
 		
 	End	
