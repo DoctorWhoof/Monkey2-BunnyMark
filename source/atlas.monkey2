@@ -21,8 +21,8 @@ Class Atlas
 	Field handle := New Vec2<Double>( 0.5, 0.5 )	'Handle(pivot) used to draw sprites
 	Field img:Image
 	
-	Field uvStack := New Stack<Float>[8]
-	Field vertStack := New Stack<Float>[8]
+	Field uvStack := New Stack<Stack<Float>>
+	Field vertStack := New Stack<Stack<Float>>
 	Field queueSize := 0
 	
 	'*************************************** Public Properties ***************************************
@@ -99,7 +99,9 @@ Class Atlas
 	
 	Method QueueSprite( x:Float, y:Float, frame:Int )
 		queueSize += 1
-		Local group :Int = Floor( queueSize / 10000 )
+		Local group :Int = Floor( queueSize / 15000 )
+		If Not vertStack[group] Then vertStack.Push( New Stack<Float> )
+		If Not uvStack[group] Then uvStack.Push( New Stack<Float> )
 		
 		Local w := cellWidth
 		Local h := cellHeight
@@ -127,8 +129,9 @@ Class Atlas
 	
 	
 	Method DrawBatch( canvas:Canvas )
-		For Local n := 0 Until 8
+		For Local n := 0 To Int(Floor( queueSize / 15000 ))
 			If vertStack[n].Length >= 8
+				canvas.DrawText( "group " + n, (100*n) + 10, App.ActiveWindow.Height - 16 )
 				canvas.DrawPrimitives( 4, vertStack[n].Length/8, vertStack[n].Data.Data, 8, uvStack[n].Data.Data, 8, Null, 4, img, Null )
 			End
 			vertStack[n].Clear()
