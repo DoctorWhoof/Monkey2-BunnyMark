@@ -18,7 +18,7 @@ Class Atlas
 	Field paddedWidth:Double						'the total width of a cell + padding, in pixels
 	Field paddedHeight:Double						'the total height of a cell + padding, in pixels
 	
-	Field handle := New Vec2<Double>( 0.5, 0.5 )	'Handle(pivot) used to draw sprites
+	Field handle := New Vec2<Double>( 0.5, 0.5 )	'Handle (pivot) used to draw batched sprites
 	Field img:Image									'Image for sprite batch rendering
 	
 	Field uvStack := New Stack<Stack<Float>>		'Stack with batch rendering vertices
@@ -53,7 +53,6 @@ Class Atlas
 		Return handle
 	Setter( v:Vec2<Double> )
 		handle = v
-		
 	End
 	
 	
@@ -61,6 +60,7 @@ Class Atlas
 	
 	
 	Method New( path:String, _cellWidth:Int, _cellHeight:Int, _padding:Int = 0, _border:Int = 0, _flags:TextureFlags = TextureFlags.FilterMipmap )
+		
 		'Loads texture, populates all fields and generates UV coordinates for each cell (frame)
 		texture = Texture.Load( path, _flags )
 		Assert( texture, " ~n ~nGameGraphics: Image " + path + " not found.~n ~n" )	
@@ -86,8 +86,7 @@ Class Atlas
 			coordinates.Push( New Rectf( x/w, y/h, (x+cellWidth)/w, (y+cellHeight)/h ) )
 		Next
 		
-		'Image for Sprite queue rendering. I wish I could just use Canvas.DrawPrimitive with the texture!
-		img = New Image( texture )
+		img = New Image( texture )	'Image for Sprite queue rendering. I wish I could just use Canvas.DrawPrimitive with the texture!
 		
 		Print ( "Atlas: New atlas with " + rows + " rows and " + columns + " columns" )
 	End
@@ -97,7 +96,7 @@ Class Atlas
 		queueSize += 1
 		Local group :Int = Floor( queueSize / 15000 )
 		
-		If Not vertStack[group]
+		If vertStack.Length <= group
 			vertStack.Push( New Stack<Float> )
 			uvStack.Push( New Stack<Float> )
 			Print( "Atlas: New sprite rendering group" )
