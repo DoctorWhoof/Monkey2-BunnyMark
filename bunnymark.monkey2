@@ -24,8 +24,6 @@ End Function
 
 Class Bunnymark Extends Window 
 	
-	Field frames := 1
-	Field elapsed := 1
 	Field bunnies := New Stack<Bunny>
 	
 	Method New()
